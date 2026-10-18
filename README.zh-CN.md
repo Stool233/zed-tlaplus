@@ -2,7 +2,7 @@
 
 [English](README.md) | 简体中文
 
-这个项目起源于一个很简单的个人需求：我希望有一个 Zed 的 TLA+ 插件，提供语法提示、Go to Definition（定义跳转）和悬浮提示等功能，方便我在 Zed 里阅读 TLA+。
+这个项目起源于一个很简单的个人需求：我希望有一个 Zed 的 TLA+ 插件，提供语法提示、Go to Definition（定义跳转）和悬浮提示等功能，方便我在 Zed 里阅读 TLA+。我当时找到的 Zed TLA+ 插件缺少 Go to Definition 等功能，没能满足这些阅读需求。
 
 于是我随手让 GPT-6 Astra 写了一个。它通过 computer use 直接打开 Zed 桌面应用测试插件，很快就完成了实现和测试。
 

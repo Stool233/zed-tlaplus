@@ -2,7 +2,7 @@
 
 English | [简体中文](README.zh-CN.md)
 
-This project started with a simple personal need: I wanted a TLA+ extension with syntax suggestions, Go to Definition, and hover documentation to make reading TLA+ in Zed easier.
+This project started with a simple personal need: I wanted a TLA+ extension with syntax suggestions, Go to Definition, and hover documentation to make reading TLA+ in Zed easier. The existing Zed TLA+ extensions I found were missing Go to Definition and other reading aids I wanted.
 
 So, on a whim, I asked GPT-6 Astra to build one. It used computer use to open the Zed desktop app and test the extension directly, and got the implementation and testing done quickly.
 
