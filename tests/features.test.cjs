@@ -57,7 +57,7 @@ Partial == App«complete»
   assert.doesNotMatch(f.query('hover', 'len').contents.value, /^\)$/m);
   assert.deepEqual(f.labels('complete'), ['Append']);
   const nat = f.query('hover', 'nat').contents.value;
-  assert.match(nat, /占位定义/);
+  assert.match(nat, /Placeholder definition/);
   assert.doesNotMatch(nat, /== \{ \}/);
 });
 
@@ -101,7 +101,7 @@ Var == «variable»count
   assert.equal(hover.contents.kind, 'markdown');
   assert.match(hover.contents.value, /```tla\nIncrement\(delta\)/);
   assert.match(hover.contents.value, /Increase the counter\.\n中文说明/);
-  assert.match(hover.contents.value, /模块: Main/);
+  assert.match(hover.contents.value, /Module: Main/);
   assert.deepEqual(hover.range.start, f.files['Main.tla'].marks.call);
   assert.equal(hover.range.end.character - hover.range.start.character, 'Increment'.length);
   assert.match(f.query('hover', 'variable').contents.value, /VARIABLE count/);
@@ -143,7 +143,7 @@ Argument == I(caller)!Value(«argument»caller)
   assert.ok(f.labels('argument').includes('caller'));
   assert.ok(!f.labels('argument').includes('c'));
   assert.equal(f.query('signatureHelp', 'argument').signatures[0].label, 'Value(y)');
-  assert.match(f.query('hover', 'member').contents.value, /模块: Base/);
+  assert.match(f.query('hover', 'member').contents.value, /Module: Base/);
 });
 
 test('completion recovers unfinished qualified names and calls without modifying live documents', async t => {

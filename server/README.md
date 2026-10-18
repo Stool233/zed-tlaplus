@@ -7,6 +7,9 @@ The Rust extension embeds the scripts, grammar and standard modules, writes them
 extension work directory, and installs exactly `web-tree-sitter@0.25.10` there.
 The process uses Zed's Node runtime. No global npm or Python install is needed.
 
+This embedding describes the current development release. Registry publication
+requires a separately distributed server; see the [publishing assessment](../docs/PUBLISHING.md).
+
 The ten official standard modules are bundled from TLA+ tools v1.7.4. Their
 [provenance, license and update instructions](standard_modules/README.md) are
 checked in alongside the untouched sources. They are the last module lookup

@@ -153,12 +153,12 @@ function bindingInfo(binding, navigation) {
     else if (preview.length < owner.text.length) preview += '\n…';
   }
   return { name, signature, parameters, parameterRanges, kind, module, bundled, preview, documentation,
-    note: dummy ? '官方标准模块中的占位定义；实际语义由 TLA+ 工具实现。' : '' };
+    note: dummy ? 'Placeholder definition in the official standard module; TLA+ tools provide the actual semantics.' : '' };
 }
 
 function formatted(info, markdown, preview = false, includeCode = true) {
   const code = preview ? info.preview : info.signature;
-  const source = `${info.bundled ? 'TLA+ 标准库' : '模块'}: ${info.module}`;
+  const source = `${info.bundled ? 'TLA+ standard library' : 'Module'}: ${info.module}`;
   return { kind: markdown ? 'markdown' : 'plaintext', value: [
     includeCode && (markdown ? `\`\`\`tla\n${code}\n\`\`\`` : code), source, info.documentation, info.note,
   ].filter(Boolean).join('\n\n') };
@@ -206,7 +206,7 @@ class LanguageFeatures {
   modules(document, scope) {
     const result = new Map();
     for (let current = scope; current; current = current.parent) {
-      for (const name of current.modules.keys()) if (!result.has(name)) result.set(name, '内部模块');
+      for (const name of current.modules.keys()) if (!result.has(name)) result.set(name, 'Inner module');
     }
     for (const directory of this.navigation.moduleDirectories(document)) {
       let files = [];
@@ -219,7 +219,7 @@ class LanguageFeatures {
       for (const file of files) {
         if (!/^[A-Za-z0-9_]+\.tla$/.test(file)) continue;
         const name = file.slice(0, -4);
-        if (!result.has(name)) result.set(name, directory === this.navigation.standardModulePath ? 'TLA+ 标准库' : '模块');
+        if (!result.has(name)) result.set(name, directory === this.navigation.standardModulePath ? 'TLA+ standard library' : 'Module');
       }
     }
     return result;

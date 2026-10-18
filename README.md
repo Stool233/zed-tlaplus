@@ -1,47 +1,84 @@
 # TLA+ for Zed
 
-为 Zed 提供 TLA+ / PlusCal 语法高亮，以及 TLA+ 定义跳转、悬浮说明、作用域补全和参数提示。
+English | [简体中文](README.zh-CN.md)
 
-## 功能
+TLA+ and PlusCal editing support for [Zed](https://zed.dev), with syntax highlighting, Go to Definition, hover documentation, symbol completion, and signature help.
 
-- 自动识别 `.tla` 文件，支持 ASCII / Unicode TLA+ 运算符。
-- 高亮模块、常量、变量、算子、时序公式、证明和注释内的 PlusCal。
-- 提供 68 个模块、状态规约、量词、集合、函数、记录、时序逻辑、标准库调用和 PlusCal 模板补全。
-- 支持 Tab 占位符、括号配对、自动缩进、Outline 符号导航和 Vim 文本对象。
-- Go to Definition：变量、常量、算子、参数、`LET`、量词，以及 `EXTENDS` / `INSTANCE` 跨文件跳转。
-- Hover：显示符号定义、参数、说明注释和所属模块。
-- 作用域补全：当前可见变量、参数、局部算子、导入符号和 `Instance!` 成员，以及 `EXTENDS` / `INSTANCE` 模块名。
-- 参数提示：显示算子签名和当前参数，支持嵌套调用及 `Test(_)` 等高阶算子参数。
-- 内置 10 个官方标准模块，`Len`、`Append`、`Cardinality` 等可直接跳转、补全和查看说明。
-- 模板由 Zed 原生 snippets 提供；上述语言功能由内置的轻量语言服务器提供，使用 Zed 管理的 Node.js，无需 Java。
+**Current version: 0.3.0.** Install this project as a development extension. This repository's extension has not been published to the Zed extension registry.
 
-当前版本为 v0.3.0。语义报错、变量类型推断、TLC 模型检查和 PlusCal 翻译不包含在此版本中。
+[Roadmap](ROADMAP.md) · [Changelog](CHANGELOG.md) · [Contributing](CONTRIBUTING.md) · [Publishing guide](docs/PUBLISHING.md)
 
-## 安装
+## Features
 
-1. 使用近期版本的 Zed。开发扩展的构建环境按 [Zed 官方说明](https://zed.dev/docs/extensions/developing-extensions) 配置；如需安装 Rust，使用 rustup。
-2. 打开命令面板，执行 **`zed: install dev extension`**，选择本项目根目录（包含 `extension.toml` 的目录）。也可从 Extensions 页面点击 **Install Dev Extension**。
-3. 首次安装时 Zed 会下载固定版本的 Tree-sitter 语法、WASI 编译工具和 Rust 依赖；首次打开 TLA+ 文件时会准备 Node.js（若尚未安装）和固定版本的 `web-tree-sitter`，需要能访问 GitHub、crates.io、Node.js 下载源及 npm。完成后可离线使用。
-4. 打开 `examples/Counter.tla`，右下角语言应为 **TLA+**。修改扩展后，在 Extensions 页面点击该开发扩展的 **Rebuild**。
+| Feature | Support |
+| --- | --- |
+| Syntax highlighting | TLA+, ASCII and Unicode operators, proofs, and PlusCal in comments |
+| Go to Definition | Variables, constants, operators, parameters, `LET`, quantifiers, and imports through `EXTENDS` / `INSTANCE` |
+| Hover documentation | Definitions, signatures, source modules, and documentation comments |
+| Symbol completion | Visible bindings, imported operators, `Instance!` members, and module names |
+| Signature help | Operator parameters and the active argument, including nested calls |
+| Standard library | Ten bundled official modules for navigation and documentation |
+| Snippets | 68 templates for specifications, expressions, standard-library calls, and PlusCal |
+| Editor integration | Bracket matching, indentation, outline symbols, and Vim text objects |
 
-从 v0.2.0 起，扩展包含 Rust 入口，用于启动内置语言服务器。通过 Zed 的 **Rebuild** 构建和重新加载；开发时也可用下文的 Cargo 命令检查编译。
+The language server uses Tree-sitter and Zed's managed Node.js runtime. Java is not needed for these editing features. SANY diagnostics, TLC model checking, and PlusCal translation are planned separately.
 
-重建后，若已有 TLA+ 文件没有恢复跳转，在该文件中执行 **`editor: restart language server`**。
+## Install
 
-开发安装或重建后若出现重复的补全候选，重启 Zed 可清空本次进程的片段缓存。本次联调观察到开发扩展被连续加载两次；[Zed 的片段注册实现](https://github.com/zed-industries/zed/blob/main/crates/snippet_provider/src/registry.rs) 会追加片段。扩展清单只注册了一份片段，重复候选不影响插入结果。
+1. Obtain a local checkout of this repository. GitHub access is required while the repository is private.
+2. Use a recent Zed release and set up the [development-extension prerequisites](https://zed.dev/docs/extensions/developing-extensions). Install Rust through rustup if needed.
+3. Run **`zed: install dev extension`** from the command palette and select the directory containing `extension.toml`. You can also use **Install Dev Extension** on the Extensions page.
+4. Open [`examples/Editing.tla`](examples/Editing.tla). The language indicator should read **TLA+**.
 
-## Go to Definition
+The initial build needs access to GitHub, Rust dependencies, and the WASI toolchain. On first use, Zed also prepares Node.js if needed and installs the pinned `web-tree-sitter` package from npm. Editing features work offline once setup is complete.
 
-把光标放在符号上，执行命令面板的 **`editor: go to definition`**（默认 `F12`，macOS 也可 `Cmd+点击`）。打开 [`examples/Navigation.tla`](examples/Navigation.tla) 试用：
+After changing the extension, click **Rebuild** on the Extensions page. If an already-open TLA+ file does not reconnect, run **`editor: restart language server`**.
 
-- `Step == Increment` 中的 `Increment` 跳到 `Counter.tla` 的算子定义。
-- `Current == count` 中的 `count` 跳到 `VARIABLE count`。
-- `CounterInstance!Reset` 中的实例名跳到本文件的实例定义，`Reset` 跳到 `Counter.tla`。
-- `Twice(x)`、`LET` 内参数和量词里的 `x` 按各自的作用域跳转。
+## Try it
 
-支持未保存的编辑、中文/emoji 注释、ASCII / Unicode 运算符、嵌套模块、传递导入、`LOCAL` 导出限制和 `INSTANCE ... WITH` 的源/目标符号。注释、字符串、记录字段和未解析的名字不会被当作普通变量跳转。
+Open [`examples/Editing.tla`](examples/Editing.tla) and use these command-palette actions:
 
-外部模块按「当前文件目录 → 工作区根目录 → 自定义模块目录 → 内置标准库」查找，文件名需为 `模块名.tla`。只沿显式导入解析，不递归扫描整个项目。库在其他目录时，在 Zed 设置中配置：
+| Action | Example |
+| --- | --- |
+| `editor: go to definition` | Jump from `Len` to its bundled `Sequences.tla` definition |
+| `editor: hover` | Inspect `Enqueue` and its documentation comment |
+| `editor: show completions` | Type `Enq` for a local operator, or `Library!` for instance members |
+| `editor: show signature help` | Inspect `Append(s, e)` while editing its arguments |
+
+[`examples/Navigation.tla`](examples/Navigation.tla) also demonstrates cross-file imports, parameters, local definitions, and quantifier scopes. Unsaved edits are reflected in navigation and completion, including edits in imported modules.
+
+Symbol completions insert a name. Snippets insert a template with Tab placeholders. Type `forall` and accept the snippet to insert:
+
+```tla
+\A x \in S : P(x)
+```
+
+Common snippet prefixes:
+
+| Prefixes | Templates |
+| --- | --- |
+| `module`, `specification` | Module and state-machine specification |
+| `EXTENDS`, `CONSTANTS`, `VARIABLES` | Imports and declarations |
+| `Init`, `Next`, `Spec`, `TypeOK` | State predicates, actions, behavior, and invariants |
+| `operator`, `function`, `INSTANCE` | Definitions and module instances |
+| `IF`, `CASE`, `LET`, `forall`, `exists`, `CHOOSE` | Conditions, local definitions, and quantifiers |
+| `setfilter`, `setmap`, `fn`, `record`, `EXCEPT` | Sets, functions, records, and updates |
+| `always`, `eventually`, `leadsto`, `WF`, `SF` | Temporal logic and fairness |
+| `Len`, `Append`, `Head`, `Tail`, `Seq`, `Cardinality` | Standard-library calls |
+| `algorithm`, `pcalprocess`, `pcalwhile`, `pcalif` | PlusCal algorithms and statements |
+
+See [all snippets](snippets/tla+.json). Add any required `EXTENDS` imports yourself; snippets do not edit imports. PlusCal templates use p-syntax, while highlighting supports both p-syntax and C-syntax.
+
+## Configuration
+
+Imported modules are resolved in this order:
+
+1. The current file's directory.
+2. Workspace roots.
+3. Configured `modulePaths`.
+4. Bundled standard modules.
+
+Files must be named `ModuleName.tla`. Resolution follows explicit imports and does not recursively scan the project. Add other library directories in Zed settings:
 
 ```json
 {
@@ -51,63 +88,7 @@
         "modulePaths": ["lib", "/absolute/path/to/StandardModules"]
       }
     }
-  }
-}
-```
-
-相对路径以工作区根目录为基准；修改后执行 **`editor: restart language server`**。内置标准库作为最后的查找候选，项目和配置目录中的同名模块优先。当前不读取 `tla2tools.jar` 或 `TLA_LIBRARY`。
-
-内置 `Naturals`、`Integers`、`Reals`、`Sequences`、`FiniteSets`、`Bags`、`TLC`、`RealTime`、`Randomization`、`Toolbox`，来源固定到官方 TLA+ tools v1.7.4，随扩展提供，可离线使用。来源、许可证和校验值见 [`server/standard_modules/README.md`](server/standard_modules/README.md)。标准模块仍需通过 `EXTENDS` / `INSTANCE` 显式引入；`Sequences` 的局部导入不会让 `Nat` 自动进入当前作用域。
-
-此版本通过语法树提供定义导航，不执行 SANY 语义检查。PlusCal 内部符号、结构化证明上下文、`Op!label` / `Op!1` 等子表达式选择器暂不支持。未完成语法按可解析部分提供跳转；能够跳转不代表规约在语义上有效。
-
-## 悬浮说明、符号补全与参数提示
-
-打开 [`examples/Editing.tla`](examples/Editing.tla) 体验：
-
-- 指向 `Enqueue`，或执行 **`editor: hover`**，可查看其参数、定义和前置说明注释。
-- 指向 `Len` 或 `Append`，查看官方标准库说明；定义跳转会打开随扩展提供的 `.tla` 文件。
-- 在表达式中输入 `Enq`，执行 **`editor: show completions`**，选择当前模块的 `Enqueue`。
-- 输入 `Library!` 查看该实例的可导出成员；`LOCAL` 定义和被实例化模块的常量、变量不会混入成员列表。
-- 在 `Append(queue, ...)` 的参数内执行 **`editor: show signature help`**，显示 `Append(s, e)`，并突出当前参数。输入 `(` / `,` 时是否自动显示取决于 Zed 的参数提示设置。
-
-补全遵守参数、`LET` 和量词的作用域与同名遮蔽；候选附带签名和来源，接受后仅插入符号名称。原来的模板补全仍保留，适合插入调用骨架。跨模块的未保存修改也会立即反映到补全、悬浮说明和参数提示中。
-
-对于 `Append(`、`Library!` 等未完成输入，服务器用临时语法树尽量恢复上下文，不会修改文件。严重不完整的语法可能没有候选。记录字段、注释、字符串、PlusCal 内部和尚未支持的证明上下文不提供这些语义提示。实例成员展示原始模块中的定义，不计算 `WITH` 替换后的表达式。
-
-部分官方数值模块包含供工具覆盖的占位实现。悬浮说明会明确标注，并只显示签名，避免将占位表达式当成数学定义。
-
-## 使用模板补全
-
-在 `.tla` 文件中输入前缀，选择补全项并按 Enter/Tab 接受，再用 Tab 在参数占位符之间跳转。例如输入 `forall` 得到：
-
-```tla
-\A x \in S : P(x)
-```
-
-常用前缀：
-
-| 前缀 | 插入内容 |
-| --- | --- |
-| `module` / `specification` | 模块骨架 / 完整状态规约模板 |
-| `EXTENDS` / `CONSTANTS` / `VARIABLES` | 导入模块 / 常量 / 状态变量 |
-| `Init` / `Next` / `Spec` / `TypeOK` | 初始状态、动作、行为规约和类型不变式 |
-| `operator` / `function` / `INSTANCE` | 算子、函数或模块实例 |
-| `IF` / `CASE` / `LET` | 条件、多分支和局部定义 |
-| `forall` / `exists` / `CHOOSE` | 量词和选择表达式 |
-| `setfilter` / `setmap` / `fn` / `record` / `EXCEPT` | 集合、函数、记录和更新 |
-| `always` / `eventually` / `leadsto` / `WF` / `SF` | 时序逻辑和公平性 |
-| `Len` / `Append` / `Head` / `Tail` / `Seq` | Sequences 标准模块调用 |
-| `Cardinality` / `IsFiniteSet` | FiniteSets 标准模块调用 |
-| `algorithm` / `pcalprocess` | PlusCal p-syntax 算法模板 |
-| `pcalwhile` / `pcalif` / `await` / `assert` / `assign` | PlusCal 算法体内的语句 |
-
-全部片段见 [`snippets/tla+.json`](snippets/tla+.json)。需要标准模块的调用会在补全说明中标注，`EXTENDS` 需自行添加。PlusCal 片段使用 p-syntax；高亮同时支持 p-syntax 和 C-syntax。
-
-没有自动弹出提示时，执行命令面板的 **`editor: show completions`**，或按 `Ctrl+Space`。macOS 若将它用于切换输入法，可通过命令面板触发，或调整系统快捷键。也可检查 Zed 设置：
-
-```json
-{
+  },
   "languages": {
     "TLA+": {
       "show_completions_on_input": true,
@@ -117,66 +98,50 @@
 }
 ```
 
-`'` 是 TLA+ 的后继状态运算符，因此不会自动补第二个单引号。PlusCal 算法位于 `(* ... *)` 内时仍使用代码高亮。
+Relative module paths are resolved from workspace roots. Restart the language server after changing them. Project and configured modules take precedence over bundled files. The server does not currently read `tla2tools.jar` or `TLA_LIBRARY`.
 
-## 示例
+The bundled modules are `Naturals`, `Integers`, `Reals`, `Sequences`, `FiniteSets`, `Bags`, `TLC`, `RealTime`, `Randomization`, and `Toolbox`, pinned to TLA+ tools v1.7.4. They still need explicit `EXTENDS` / `INSTANCE` imports. See their [sources, licenses, and checksums](server/standard_modules/README.md).
 
-- [`examples/Counter.tla`](examples/Counter.tla)：有界计数器，展示状态、动作、时序规约和不变式。
-- [`examples/Counter.cfg`](examples/Counter.cfg)：配套 TLC 配置，`Max = 3`。`.cfg` 没有注册为 TLA+，避免误识别其他软件的配置文件。
-- [`examples/PlusCalCounter.tla`](examples/PlusCalCounter.tla)：PlusCal 算法高亮示例；运行 TLC 前需用官方工具翻译。
-- [`examples/Navigation.tla`](examples/Navigation.tla)：同文件作用域、跨文件导入和实例定义跳转。
-- [`examples/Editing.tla`](examples/Editing.tla)：标准库、悬浮说明、作用域补全和参数提示。
+## Current limits
 
-如已自行安装 Java 和官方 `tla2tools.jar`，可独立检查计数器示例：
+- Navigation and editing assistance use syntax trees and lexical scopes. A successful jump does not imply a semantically valid specification.
+- PlusCal bindings, structured-proof contexts, and subexpression selectors such as `Op!label` or `Op!1` are not supported by the language server. PlusCal and proof syntax still receive highlighting.
+- Comments, strings, and record fields do not receive ordinary symbol suggestions. Severely incomplete syntax may produce no results.
+- Instance documentation shows the original definition without evaluating `WITH` substitutions. Numeric standard-library placeholders are identified in hover text and shown as signatures only.
+- Semantic diagnostics, type inference, references, rename, model checking, and PlusCal translation are not implemented.
+- `.cfg` files are not associated with TLA+ automatically, to avoid capturing unrelated configuration files.
+
+## Examples
+
+| File | Purpose |
+| --- | --- |
+| [Counter.tla](examples/Counter.tla) / [Counter.cfg](examples/Counter.cfg) | Bounded counter, temporal specification, and a TLC configuration with `Max = 3` |
+| [PlusCalCounter.tla](examples/PlusCalCounter.tla) | PlusCal highlighting; translate with official tools before model checking |
+| [Navigation.tla](examples/Navigation.tla) | Local scopes, imports, and instance navigation |
+| [Editing.tla](examples/Editing.tla) | Standard-library navigation, hover, completion, and signatures |
+
+With Java and an independently installed `tla2tools.jar`, you can check the counter outside the extension:
 
 ```sh
 cd examples
 java -cp /absolute/path/to/tla2tools.jar tlc2.TLC -config Counter.cfg Counter.tla
 ```
 
-## 验证与开发
+## Troubleshooting
 
-Python 3.9+ 和 C 编译器用于安装与清单同版本的语法包，验证高亮和片段。这些 Python 依赖不参与扩展运行：
+- **No suggestions:** run `editor: show completions`. Check the language indicator and the settings above. Automatic signature popups also depend on Zed's signature-help settings.
+- **No navigation after a rebuild:** run `editor: restart language server`, then inspect `zed: open log` if needed.
+- **Duplicate snippets after repeated development rebuilds:** restart Zed to clear the process's snippet cache.
+- **A trailing prime does not auto-pair:** this is intentional; `'` is TLA+'s next-state operator.
 
-```sh
-python3 -m venv .venv
-.venv/bin/python -m pip install -r requirements-dev.txt
-.venv/bin/python -m unittest discover -s tests -v
-```
+## Development and roadmap
 
-Windows 使用 `.venv\Scripts\python`。若本机 pip 设置了 `user = true`，在安装命令前加 `PIP_USER=0`（PowerShell 设置 `$env:PIP_USER = "0"`）。
+See [CONTRIBUTING.md](CONTRIBUTING.md) for setup, validation, project layout, and dependency updates. The [server documentation](server/README.md) explains scope resolution and the grammar build.
 
-验证覆盖清单/语言/片段关联、所有 Tree-sitter 查询编译、示例解析、每个模板展开后的语法、反斜杠保留、PlusCal 注释边界、符号导航、括号匹配和 Unicode 运算符。语言服务器测试还覆盖作用域补全、悬浮说明、嵌套调用参数提示、未保存编辑、实际 stdio LSP 通信，以及内置标准库的上游校验值和解析兼容性。Tree-sitter 的语法通过不等同于 SANY 语义校验或 TLC 模型检查。
+The [roadmap](ROADMAP.md) prioritizes release packaging, syntax diagnostics, references, and safe rename, followed by optional integration with official TLA+ tools. See the [publishing guide](docs/PUBLISHING.md) for the current registry requirements and remaining work.
 
-定义解析和实际 stdio LSP 测试使用 Node.js 20+；Rust 入口使用 rustup 工具链：
+## Credits and license
 
-```sh
-npm ci --ignore-scripts
-npm test
-rustup target add wasm32-wasip2
-cargo build --release --target wasm32-wasip2 --locked
-```
+The parser comes from [tree-sitter-tlaplus](https://github.com/tlaplus-community/tree-sitter-tlaplus). Standard modules come from [TLA+ tools](https://github.com/tlaplus/tlaplus). Related Zed projects include [Akanoa/Zed-editor-TLA-syntax](https://github.com/Akanoa/Zed-editor-TLA-syntax) and [suckrowPierre/zed-tlaplus](https://github.com/suckrowPierre/zed-tlaplus).
 
-语言服务器的 WASM 语法已随仓库提供，来源、许可证和重建方法见 [`server/README.md`](server/README.md)。只有升级语法版本时需要重新构建它。
-
-```text
-extension.toml             扩展清单、固定语法版本和片段注册
-src/lib.rs                 Zed Rust 入口、运行时准备和服务器启动
-server/                    LSP 通信、作用域解析、编辑辅助及固定版本的 WASM 语法
-server/standard_modules/   固定版本的官方标准模块、许可证及来源校验值
-languages/tlaplus/         语言设置及高亮、括号、缩进、Outline 等查询
-snippets/tla+.json         语言名 TLA+ 对应的小写片段文件名
-examples/                 TLA+ / PlusCal 示例
-tests/test_extension.py   实际解析器验证
-tests/*.test.cjs          定义解析、编辑辅助、标准库和 stdio LSP 测试
-```
-
-更新语法版本时，同时更新 `extension.toml` 和 `requirements-dev.txt` 的提交 SHA、重建 `server/tree-sitter-tlaplus.wasm` 并更新来源说明，再运行验证。发布到扩展市场前，需准备可公开访问的仓库、确认维护者信息，并按 [Zed 发布流程](https://zed.dev/docs/extensions/developing-extensions#publishing-your-extension) 提交；当前配置可直接用于本地开发安装。
-
-## 参考
-
-- [Zed Language Extensions](https://zed.dev/docs/extensions/languages)
-- [Zed Snippet Extensions](https://zed.dev/docs/extensions/snippets) 与 [Snippet 格式](https://zed.dev/docs/snippets)
-- [tree-sitter-tlaplus](https://github.com/tlaplus-community/tree-sitter-tlaplus)，MIT，语法由 Zed 按固定提交下载。
-
-本项目采用 MIT 许可，见 [LICENSE](LICENSE)。
+This project is MIT licensed; see [LICENSE](LICENSE). Vendored components retain their [grammar license](server/tree-sitter-tlaplus.LICENSE) and [standard-module license](server/standard_modules/LICENSE).
