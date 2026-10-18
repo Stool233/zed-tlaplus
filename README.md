@@ -2,6 +2,10 @@
 
 English | [简体中文](README.zh-CN.md)
 
+This project started with a simple personal need: I wanted a TLA+ extension with syntax suggestions, Go to Definition, and hover documentation to make reading TLA+ in Zed easier.
+
+So, on a whim, I asked GPT-6 Astra to build one. It used computer use to open the Zed desktop app and test the extension directly, and got the implementation and testing done quickly.
+
 TLA+ and PlusCal editing support for [Zed](https://zed.dev), with syntax highlighting, Go to Definition, hover documentation, symbol completion, and signature help.
 
 **Current version: 0.3.0.** Install this project as a development extension. This repository's extension has not been published to the Zed extension registry.
