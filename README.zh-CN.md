@@ -29,7 +29,7 @@
 
 ## 安装
 
-1. 将本仓库检出到本地。仓库为私有状态时，需要具有相应的 GitHub 访问权限。
+1. 克隆本仓库：`git clone https://github.com/Stool233/zed-tlaplus.git`。
 2. 使用近期版本的 Zed，按[开发扩展说明](https://zed.dev/docs/extensions/developing-extensions)准备环境；需要安装 Rust 时请使用 rustup。
 3. 在命令面板执行 **`zed: install dev extension`**，选择包含 `extension.toml` 的项目根目录。也可在 Extensions 页面点击 **Install Dev Extension**。
 4. 打开 [`examples/Editing.tla`](examples/Editing.tla)，语言指示器应显示 **TLA+**。

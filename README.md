@@ -29,7 +29,7 @@ The language server uses Tree-sitter and Zed's managed Node.js runtime. Java is 
 
 ## Install
 
-1. Obtain a local checkout of this repository. GitHub access is required while the repository is private.
+1. Clone this repository: `git clone https://github.com/Stool233/zed-tlaplus.git`.
 2. Use a recent Zed release and set up the [development-extension prerequisites](https://zed.dev/docs/extensions/developing-extensions). Install Rust through rustup if needed.
 3. Run **`zed: install dev extension`** from the command palette and select the directory containing `extension.toml`. You can also use **Install Dev Extension** on the Extensions page.
 4. Open [`examples/Editing.tla`](examples/Editing.tla). The language indicator should read **TLA+**.

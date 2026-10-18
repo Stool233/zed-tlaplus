@@ -20,9 +20,10 @@ This roadmap describes priorities, not release dates. Unchecked items are propos
 - [x] English built-in snippet descriptions and language-server labels.
 - [ ] Move the embedded language server into an independently versioned release artifact; see the [publishing assessment](docs/PUBLISHING.md).
 - [ ] Add installation tests for a fresh cache, failed downloads, upgrades, and offline restarts.
-- [ ] Add CI for Node tests, Python query validation, Rust formatting, Clippy, and WASM builds.
+- [ ] Add Clippy to the existing CI checks for Node tests, Python query validation, Rust formatting, and WASM builds.
 - [ ] Verify installation and editing on Linux and Windows, alongside macOS.
-- [ ] Decide the public distribution route and the relationship with the existing `tla-plus` extension.
+- [x] Make the source repository publicly accessible.
+- [ ] Decide the server distribution route and the relationship with the existing `tla-plus` extension.
 - [ ] Record a short demo and document the tested Zed version for the release candidate.
 
 Completion means a new user can install the published server artifact and use the documented features without a development checkout. Registry submission also depends on the decisions and requirements in the publishing guide.

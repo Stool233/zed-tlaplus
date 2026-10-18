@@ -6,6 +6,7 @@ Versions below describe project development milestones. They do not imply public
 
 ### Changed
 
+- Make the source repository public and document cloning without authentication.
 - Use English as the default README and add a Simplified Chinese translation.
 - Organize development instructions, roadmap, and registry publication guidance into separate documents.
 - Use English for built-in snippet descriptions, module labels, and standard-library placeholder explanations.

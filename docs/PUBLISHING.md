@@ -2,7 +2,7 @@
 
 [README](../README.md) · [Roadmap](../ROADMAP.md) · [Contributing](../CONTRIBUTING.md)
 
-Last checked: **2026-10-18**. Recheck the linked upstream documents before submitting; registry requirements can change. This is a preparation guide, not a record of an approved submission.
+Registry requirements last checked: **2026-10-18**. Repository visibility updated: **2026-10-19**. Recheck the linked upstream documents before submitting; registry requirements can change. This is a preparation guide, not a record of an approved submission.
 
 ## Current assessment
 
@@ -10,7 +10,7 @@ This project works as a development extension, but needs distribution changes be
 
 | Item | Project status | Next action |
 | --- | --- | --- |
-| Repository | `Stool233/zed-tlaplus` is private | Choose a public distribution repository before submission |
+| Repository | [`Stool233/zed-tlaplus`](https://github.com/Stool233/zed-tlaplus) is public | Use this HTTPS source URL for the extension submodule |
 | Extension identity | Local ID `tlaplus`; the registry already contains `tla-plus` | Decide how to collaborate with the existing project or justify a distinct offering |
 | Server packaging | `src/lib.rs` embeds the language server with `include_bytes!` | Replace this with a separately distributed server |
 | License | Root MIT license and third-party notices are present | Preserve notices in the eventual server artifact |
