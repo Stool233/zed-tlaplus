@@ -25,6 +25,7 @@ impl zed::Extension for TlaPlus {
         // Embed the server so marketplace and dev installs have identical assets.
         write_asset("server.cjs", include_bytes!("../server/server.cjs"))?;
         write_asset("navigation.cjs", include_bytes!("../server/navigation.cjs"))?;
+        write_asset("features.cjs", include_bytes!("../server/features.cjs"))?;
         write_asset(
             "tree-sitter-tlaplus.wasm",
             include_bytes!("../server/tree-sitter-tlaplus.wasm"),
@@ -33,6 +34,27 @@ impl zed::Extension for TlaPlus {
             "tree-sitter-tlaplus.LICENSE",
             include_bytes!("../server/tree-sitter-tlaplus.LICENSE"),
         )?;
+        fs::create_dir_all("standard_modules").map_err(|error| error.to_string())?;
+        macro_rules! standard_module {
+            ($name:literal) => {
+                write_asset(
+                    concat!("standard_modules/", $name),
+                    include_bytes!(concat!("../server/standard_modules/", $name)),
+                )?;
+            };
+        }
+        standard_module!("Bags.tla");
+        standard_module!("FiniteSets.tla");
+        standard_module!("Integers.tla");
+        standard_module!("Naturals.tla");
+        standard_module!("Randomization.tla");
+        standard_module!("RealTime.tla");
+        standard_module!("Reals.tla");
+        standard_module!("Sequences.tla");
+        standard_module!("TLC.tla");
+        standard_module!("Toolbox.tla");
+        standard_module!("LICENSE");
+        standard_module!("provenance.json");
 
         let installed = zed::npm_package_installed_version("web-tree-sitter")?;
         if installed.as_deref() != Some(PARSER_VERSION)

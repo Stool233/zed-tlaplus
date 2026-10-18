@@ -1,14 +1,15 @@
 id = "tlaplus"
 name = "TLA+"
-version = "0.2.0"
+version = "0.3.0"
 schema_version = 1
 authors = ["TLA+ Zed contributors"]
-description = "TLA+ and PlusCal syntax highlighting, snippets, and TLA+ Go to Definition."
+description = "TLA+ and PlusCal syntax, definition navigation, hover, completion, and signature help."
+repository = "https://github.com/Stool233/zed-tlaplus"
 languages = ["languages/tlaplus"]
 snippets = ["snippets/tla+.json"]
 
 [language_servers.tlaplus]
-name = "TLA+ Navigation"
+name = "TLA+ Language Server"
 languages = ["TLA+"]
 
 [grammars.tlaplus]

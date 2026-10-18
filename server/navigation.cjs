@@ -122,7 +122,8 @@ class Document {
         local, instance: node.type === 'module_definition' ? definition : undefined,
       });
       const inner = new Scope(this, node, scope);
-      for (const param of node.childrenForFieldName('parameter')) {
+      this.scopes.set(node.id, inner);
+      for (const param of node.childrenForFieldName('parameter').filter(child => child.isNamed)) {
         inner.add(declarationName(param));
       }
       for (const child of children) {
@@ -148,8 +149,10 @@ class Document {
       scope = new Scope(this, node, scope);
     }
     if (node.type === 'let_in') scope = new Scope(this, node, scope);
+    this.scopes.set(node.id, scope);
     if (BINDERS.has(node.type)) {
       const inner = new Scope(this, node, scope);
+      this.scopes.set(node.id, inner);
       for (const child of children) {
         const intros = child.type === 'quantifier_bound' ? child.childrenForFieldName('intro')
           : ['identifier', 'tuple_of_identifiers'].includes(child.type) ? [child] : [];
@@ -209,6 +212,17 @@ function operatorName(node) {
   return node.childForFieldName('name') || node.childForFieldName('symbol') || node;
 }
 
+function qualifiedParts(node) {
+  for (let parent = node.parent; parent; parent = parent.parent) {
+    if (parent.type !== 'prefixed_op') continue;
+    const prefix = parent.childForFieldName('prefix');
+    if (!prefix || !codeChildren(prefix).every(part => part.type === 'subexpr_component')) return [];
+    const parts = [...codeChildren(prefix).map(operatorName), operatorName(parent.childForFieldName('op'))].filter(Boolean);
+    if (parts.some(part => part.id === node.id)) return parts;
+  }
+  return [];
+}
+
 class Navigation {
   static async create() {
     await Parser.init();
@@ -223,6 +237,7 @@ class Navigation {
     this.open = new Set();
     this.roots = [];
     this.modulePaths = [];
+    this.standardModulePath = path.join(__dirname, 'standard_modules');
   }
 
   configure(params) {
@@ -271,13 +286,18 @@ class Navigation {
       if (current.modules.has(name)) return current.modules.get(name);
     }
     if (!/^[A-Za-z0-9_]+$/.test(name)) return null;
-    const file = filePath(scope.document.uri);
-    const dirs = [...new Set([file && path.dirname(file), ...this.roots, ...this.modulePaths].filter(Boolean))];
-    for (const dir of dirs) {
+    for (const dir of this.moduleDirectories(scope.document)) {
       const doc = this.load(pathToFileURL(path.join(dir, `${name}.tla`)).href);
       if (doc?.root.modules.has(name)) return doc.root.modules.get(name);
     }
     return null;
+  }
+
+  moduleDirectories(document) {
+    const file = filePath(document.uri);
+    const directory = file && path.dirname(file);
+    return [...new Set([directory !== this.standardModulePath && directory, ...this.roots, ...this.modulePaths,
+      this.standardModulePath].filter(Boolean))];
   }
 
   resolve(scope, name, exported = false, seen = new Set(), instance = false) {
@@ -299,21 +319,44 @@ class Navigation {
 
   members(bindings, name) {
     return bindings.flatMap(binding => {
-      const target = binding.module || (binding.instance
-        && this.module(binding.scope, instanceModule(binding.instance)?.text));
+      const target = this.memberScope(binding);
       return this.resolve(target, name, true, new Set(), Boolean(binding.instance));
     });
   }
 
-  definition(uri, pos) {
-    const document = this.load(uri);
-    const node = document?.token(pos);
-    if (!node) return null;
+  memberScope(binding) {
+    return binding.module || (binding.instance
+      && this.module(binding.scope, instanceModule(binding.instance)?.text));
+  }
+
+  visible(scope, exported = false, seen = new Set(), instance = false) {
+    if (!scope) return new Map();
+    const id = `${scope.document.uri}:${scope.node.id}:${exported}:${instance}`;
+    if (seen.has(id)) return new Map();
+    const nextSeen = new Set(seen).add(id);
+    const own = new Map([...scope.symbols].filter(([, binding]) =>
+      !(exported && binding.local) && !(instance && binding.kind === 'declaration')));
+    const result = new Map([...own].map(([name, binding]) => [name, [binding]]));
+    for (const item of scope.imports) {
+      if (exported && item.local) continue;
+      const target = this.module(item.scope, item.node.text);
+      for (const [name, bindings] of this.visible(target, true, nextSeen, instance || item.kind === 'instance')) {
+        if (!own.has(name)) result.set(name, [...(result.get(name) || []), ...bindings]);
+      }
+    }
+    if (!exported) for (const [name, bindings] of this.visible(scope.parent, false, nextSeen)) {
+      if (!result.has(name)) result.set(name, bindings);
+    }
+    return result;
+  }
+
+  bindingsAt(document, node) {
+    if (!node) return [];
     const declaration = document.declarations.get(node.id);
-    if (declaration) return [location(declaration)];
-    if (node.type === 'identifier') return null; // e.g. record keys and labels
+    if (declaration) return [declaration];
+    if (node.type === 'identifier') return []; // e.g. record keys and labels
     const scope = document.scopes.get(node.id);
-    if (!scope) return null;
+    if (!scope) return [];
     const parent = node.parent;
     let result;
     if (parent.type === 'extends' || (parent.type === 'instance' && instanceModule(parent)?.id === node.id)) {
@@ -327,28 +370,25 @@ class Navigation {
       // remain in the calling scope, even though they are inside a prefixed_op.
       let qualified = node.parent;
       while (qualified && qualified.type !== 'prefixed_op') qualified = qualified.parent;
-      let parts = [];
-      if (qualified) {
-        const prefix = qualified.childForFieldName('prefix');
-        if (codeChildren(prefix).every(part => part.type === 'subexpr_component')) {
-          parts = [...codeChildren(prefix).map(operatorName), operatorName(qualified.childForFieldName('op'))].filter(Boolean);
-        }
-      }
+      const parts = qualifiedParts(node);
       const index = parts.findIndex(part => part.id === node.id);
       if (index >= 0) {
         result = this.resolve(scope, key(parts[0]));
         for (let i = 1; i <= index; i++) result = this.members(result, key(parts[i]));
       } else {
         // Do not guess at TLA+ subexpression selectors (Op!label, Op!1, ...).
-        if (qualified && node.type === 'identifier_ref' && parent.type === 'subexpr_component') return null;
+        if (qualified && node.type === 'identifier_ref' && (parent.type === 'subexpr_component'
+          || operatorName(qualified.childForFieldName('op'))?.id === node.id)) return [];
         result = this.resolve(scope, key(node));
       }
     }
-    const unique = new Map(result.map(binding => {
-      const loc = location(binding);
-      return [JSON.stringify(loc), loc];
-    }));
-    return unique.size ? [...unique.values()] : null;
+    return [...new Map(result.map(binding => [JSON.stringify(location(binding)), binding])).values()];
+  }
+
+  definition(uri, pos) {
+    const document = this.load(uri);
+    const bindings = document ? this.bindingsAt(document, document.token(pos)) : [];
+    return bindings.length ? bindings.map(location) : null;
   }
 
   dispose() {
@@ -359,4 +399,4 @@ class Navigation {
   }
 }
 
-module.exports = { Navigation, Document, canonical, filePath };
+module.exports = { Navigation, Document, canonical, filePath, key, location, position, operatorName, qualifiedParts };

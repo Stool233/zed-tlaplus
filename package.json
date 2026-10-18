@@ -1,10 +1,10 @@
 {
   "name": "zed-tlaplus-navigation",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "private": true,
-  "description": "Tree-sitter based TLA+ definition navigation for Zed",
+  "description": "Tree-sitter based TLA+ language server for Zed",
   "scripts": {
-    "test": "node --test tests/navigation.test.cjs tests/lsp.test.cjs"
+    "test": "node --test tests/navigation.test.cjs tests/features.test.cjs tests/lsp.test.cjs"
   },
   "dependencies": {
     "web-tree-sitter": "0.25.10"

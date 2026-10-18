@@ -117,3 +117,52 @@ test('stdio LSP navigates to an imported unsaved module and honors modulePaths',
   c.notify('exit');
   assert.equal((await exit)[0], 0, c.stderr());
 });
+
+test('stdio LSP exposes standard library hover, completion and signatures after incremental edits', { timeout: 15000 }, async t => {
+  const c = client(t);
+  const uri = pathToFileURL(path.join(os.tmpdir(), 'zed-tla-unsaved-features', 'Main.tla')).href;
+  const init = await c.request('initialize', { capabilities: { textDocument: {
+    hover: { contentFormat: ['markdown'] },
+    completion: { completionItem: { documentationFormat: ['markdown'], snippetSupport: true } },
+    signatureHelp: { signatureInformation: { documentationFormat: ['markdown'], parameterInformation: { labelOffsetSupport: true } } },
+  } } });
+  assert.equal(init.result.serverInfo.version, '0.3.0');
+  assert.equal(init.result.capabilities.hoverProvider, true);
+  assert.ok(init.result.capabilities.completionProvider.triggerCharacters.includes('!'));
+  assert.ok(init.result.capabilities.signatureHelpProvider.triggerCharacters.includes('('));
+  c.notify('textDocument/didOpen', { textDocument: { uri, version: 1,
+    text: '---- MODULE Main ----\nEXTENDS Sequences\nUse(p) == Append(p, <<>>)\n====' } }, true);
+  const request = (method, character) => c.request(`textDocument/${method}`, {
+    textDocument: { uri }, position: { line: 2, character },
+  });
+  let response = await request('hover', 11);
+  assert.equal(response.result.contents.kind, 'markdown');
+  assert.match(response.result.contents.value, /appending element e/);
+  const help = (await request('signatureHelp', 20)).result;
+  assert.equal(help.signatures[0].label, 'Append(s, e)');
+  assert.equal(help.activeParameter, 1);
+  assert.equal(help.signatures[0].documentation.kind, 'markdown');
+  assert.deepEqual(help.signatures[0].parameters.map(parameter => parameter.label), [[7, 8], [10, 11]]);
+  const definition = (await request('definition', 11)).result[0];
+  assert.match(definition.uri, /standard_modules\/Sequences\.tla$/);
+  c.notify('textDocument/didChange', { textDocument: { uri, version: 2 }, contentChanges: [{
+    range: { start: { line: 2, character: 10 }, end: { line: 2, character: 24 } }, text: 'App',
+  }] });
+  response = await request('completion', 13);
+  assert.deepEqual(response.result.map(item => item.label), ['Append']);
+  assert.equal(response.result[0].documentation.kind, 'markdown');
+  assert.deepEqual(response.result[0].textEdit, {
+    range: { start: { line: 2, character: 10 }, end: { line: 2, character: 13 } }, newText: 'Append',
+  });
+  c.notify('textDocument/didChange', { textDocument: { uri, version: 3 }, contentChanges: [{
+    text: '---- MODULE Main ----\nEXTENDS Sequences\nUse(p) == Append(\n====',
+  }] });
+  assert.equal((await request('signatureHelp', 17)).result.activeParameter, 0);
+  assert.ok((await request('completion', 17)).result.some(item => item.label === 'p'));
+  assert.equal((await request('hover', 999)).result, null);
+  await c.request('shutdown');
+  const exit = once(c.child, 'exit');
+  c.notify('exit');
+  assert.equal((await exit)[0], 0, c.stderr());
+  assert.equal(c.stderr(), '');
+});

@@ -1,10 +1,24 @@
-# TLA+ Navigation
+# TLA+ Language Server
 
-`server.cjs` implements stdio LSP definition requests. `navigation.cjs` resolves
-Tree-sitter syntax nodes through lexical scopes and explicit module imports.
-The Rust extension embeds both scripts and the grammar, writes them to Zed's
+`server.cjs` implements stdio LSP definition, hover, completion and signature-help
+requests. `navigation.cjs` resolves Tree-sitter syntax nodes through lexical scopes
+and explicit module imports; `features.cjs` derives editor results from those bindings.
+The Rust extension embeds the scripts, grammar and standard modules, writes them to Zed's
 extension work directory, and installs exactly `web-tree-sitter@0.25.10` there.
 The process uses Zed's Node runtime. No global npm or Python install is needed.
+
+The ten official standard modules are bundled from TLA+ tools v1.7.4. Their
+[provenance, license and update instructions](standard_modules/README.md) are
+checked in alongside the untouched sources. They are the last module lookup
+fallback, after project and configured library directories. Only explicitly
+imported exports enter completion results; `LOCAL` imports remain private.
+
+Completion temporarily replaces the token at the caret with a valid expression
+and balances unmatched delimiters, allowing the real grammar to recover scopes
+in unfinished calls. This tree is disposed after the request and never changes
+the live document. Signature help counts direct argument separators in the
+syntax tree, so nested calls, sets, tuples and quantifier binders do not inflate
+the active parameter index. Unrecoverable syntax can still yield no suggestions.
 
 The checked-in `tree-sitter-tlaplus.wasm` is built from
 [`tlaplus-community/tree-sitter-tlaplus` at `add40814fda369f6efd989977b2c498aaddde984`](https://github.com/tlaplus-community/tree-sitter-tlaplus/tree/add40814fda369f6efd989977b2c498aaddde984),

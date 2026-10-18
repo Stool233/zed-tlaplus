@@ -2,6 +2,7 @@
 'use strict';
 
 const { Navigation, canonical } = require('./navigation.cjs');
+const { LanguageFeatures } = require('./features.cjs');
 
 function send(message) {
   const body = Buffer.from(JSON.stringify({ jsonrpc: '2.0', ...message }), 'utf8');
@@ -11,6 +12,7 @@ function send(message) {
 
 async function main() {
   const navigation = await Navigation.create();
+  const features = new LanguageFeatures(navigation);
   let initialized = false;
   let shutdown = false;
   const versions = new Map();
@@ -27,14 +29,18 @@ async function main() {
     if (method === 'initialize') {
       if (initialized) return error(-32600, 'Already initialized');
       navigation.configure(params);
+      features.configure(params);
       initialized = true;
       return result({
         capabilities: {
           positionEncoding: 'utf-16',
           textDocumentSync: { openClose: true, change: 2 },
           definitionProvider: true,
+          hoverProvider: true,
+          completionProvider: { triggerCharacters: ['!', '\\'] },
+          signatureHelpProvider: { triggerCharacters: ['(', ','], retriggerCharacters: [')'] },
         },
-        serverInfo: { name: 'TLA+ Navigation', version: '0.2.0' },
+        serverInfo: { name: 'TLA+ Language Server', version: '0.3.0' },
       });
     }
     if (!initialized) return error(-32002, 'Server not initialized');
@@ -77,6 +83,12 @@ async function main() {
         return;
       case 'textDocument/definition':
         return result(navigation.definition(params.textDocument.uri, params.position));
+      case 'textDocument/hover':
+        return result(features.hover(params.textDocument.uri, params.position));
+      case 'textDocument/completion':
+        return result(features.completion(params.textDocument.uri, params.position));
+      case 'textDocument/signatureHelp':
+        return result(features.signatureHelp(params.textDocument.uri, params.position));
       default:
         return error(-32601, `Method not found: ${method}`);
     }

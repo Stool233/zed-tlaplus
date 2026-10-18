@@ -1,0 +1,19 @@
+{
+  "repository": "https://github.com/tlaplus/tlaplus",
+  "release": "v1.7.4",
+  "revision": "5a47802b5c391f59ecdd44117981f4ff8c0656ba",
+  "path": "tlatools/org.lamport.tlatools/src/tla2sany/StandardModules",
+  "sha256": {
+    "Bags.tla": "da36710bc779e289887d95c1f208214daf0c9a0ab0b0e2636086a8c17737e670",
+    "FiniteSets.tla": "d94cb545256539bf782fc1914842dfe8c19c1d3d4e48b8327dd0c47b74922e1e",
+    "Integers.tla": "071da69e5eea383d361ef308ba12ecc931bf968fcea98175c3bca419bbd8cbf2",
+    "Naturals.tla": "73f2a68412039aa86f37ad08f0d0fef50fa8327d0ad8806f515548c75e9d9d84",
+    "Randomization.tla": "1e857d129c0d8fa3c60d56360a9e811e5fe825431e02bd8bedbf65e056a715f3",
+    "RealTime.tla": "9052ccc8a150c93ae13a4d136da7b83dc68d1d8e9a0eee6f787db02b755f6682",
+    "Reals.tla": "33cc699c0139b39fcee903d4dde255b64a0b430291630aa4825c6dd32b2f2fa2",
+    "Sequences.tla": "f613cffe14133769f0972b6f6e0139aaf0773004a51bac88ada382426e3eb7f4",
+    "TLC.tla": "944ece590eec81ace059881c2a62064c06041efa81539a788cd40fa7d1da41ce",
+    "Toolbox.tla": "495c7e88c8f37f6cf90c973ff11f213d54922537a1ac667f91f7439a64438695",
+    "LICENSE": "45364edd2a021d51b9d75bfc96a49ca5573286f00034acf324f0ffc067f2f9c4"
+  }
+}
