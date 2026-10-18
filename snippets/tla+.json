@@ -1,0 +1,342 @@
+{
+  "TLA+ module": {
+    "prefix": "module",
+    "body": ["---------------- MODULE ${1:ModuleName} ----------------", "EXTENDS ${2:Naturals}", "", "$0", "========================================================="],
+    "description": "模块骨架；模块名应与 .tla 文件名相同"
+  },
+  "TLA+ specification": {
+    "prefix": "specification",
+    "body": ["---------------- MODULE ${1:Counter} ----------------", "EXTENDS Naturals", "", "CONSTANT Max", "VARIABLE x", "", "vars == <<x>>", "ASSUME Max \\in Nat", "", "Init == x = 0", "", "Next ==", "    /\\ x < Max", "    /\\ x' = x + 1", "", "Spec == Init /\\ [][Next]_vars", "TypeOK == x \\in 0..Max", "", "$0", "======================================================="],
+    "description": "完整状态规约模板：Init、Next、Spec 和类型不变式"
+  },
+  "Extend modules": {
+    "prefix": "EXTENDS",
+    "body": "EXTENDS ${1:Naturals, Sequences, FiniteSets}$0",
+    "description": "导入标准模块"
+  },
+  "Declare constants": {
+    "prefix": "CONSTANTS",
+    "body": "CONSTANTS ${1:N}$0",
+    "description": "声明常量参数"
+  },
+  "Declare variables": {
+    "prefix": "VARIABLES",
+    "body": "VARIABLES ${1:x, y}$0",
+    "description": "声明状态变量"
+  },
+  "Assumption": {
+    "prefix": "ASSUME",
+    "body": "ASSUME ${1:N} \\in ${2:Nat}$0",
+    "description": "常量假设"
+  },
+  "Recursive operator declaration": {
+    "prefix": "RECURSIVE",
+    "body": "RECURSIVE ${1:Op}(_)$0",
+    "description": "先声明递归算子，再定义其实现"
+  },
+  "Operator definition": {
+    "prefix": "operator",
+    "body": ["${1:Op}(${2:x}) ==", "    ${3:x}", "$0"],
+    "description": "带参数的算子定义"
+  },
+  "Function definition": {
+    "prefix": "function",
+    "body": "${1:f}[${2:x} \\in ${3:S}] == ${4:x}$0",
+    "description": "函数定义 f[x ∈ S] == expression"
+  },
+  "Local operator": {
+    "prefix": "LOCAL",
+    "body": "LOCAL ${1:Op} == ${2:TRUE}$0",
+    "description": "仅当前模块可见的定义"
+  },
+  "Module instance": {
+    "prefix": "INSTANCE",
+    "body": "${1:Inst} == INSTANCE ${2:ModuleName} WITH ${3:parameter} <- ${4:value}$0",
+    "description": "实例化模块并替换参数"
+  },
+  "Initial predicate": {
+    "prefix": "Init",
+    "body": ["Init ==", "    ${1:x} = ${2:0}", "$0"],
+    "description": "初始状态谓词"
+  },
+  "Next action": {
+    "prefix": "Next",
+    "body": ["Next ==", "    /\\ ${1:guard}", "    /\\ ${2:x}' = ${3:x + 1}", "$0"],
+    "description": "下一步动作：条件与后继状态赋值"
+  },
+  "Behavior specification": {
+    "prefix": "Spec",
+    "body": "Spec == ${1:Init} /\\ [][${2:Next}]_${3:vars}$0",
+    "description": "允许停滞步骤的行为规约"
+  },
+  "Type invariant": {
+    "prefix": "TypeOK",
+    "body": ["TypeOK ==", "    ${1:x} \\in ${2:Nat}", "$0"],
+    "description": "类型不变式"
+  },
+  "Theorem": {
+    "prefix": "THEOREM",
+    "body": "THEOREM ${1:Safety} == ${2:Spec} => []${3:TypeOK}$0",
+    "description": "声明定理；证明可随后添加"
+  },
+  "Lemma": {
+    "prefix": "LEMMA",
+    "body": ["LEMMA ${1:Name} == ${2:TRUE}", "PROOF", "    OBVIOUS", "$0"],
+    "description": "引理与简单证明骨架"
+  },
+  "If expression": {
+    "prefix": "IF",
+    "body": "IF ${1:condition} THEN ${2:yes} ELSE ${3:no}$0",
+    "description": "条件表达式，两个分支都必需"
+  },
+  "Case expression": {
+    "prefix": "CASE",
+    "body": ["CASE ${1:condition} -> ${2:value}", "  [] OTHER -> ${3:defaultValue}$0"],
+    "description": "多分支表达式"
+  },
+  "Let expression": {
+    "prefix": "LET",
+    "body": ["LET ${1:Local} == ${2:value}", "IN ${3:Local}$0"],
+    "description": "局部定义与表达式"
+  },
+  "Universal quantifier": {
+    "prefix": "forall",
+    "body": "\\A ${1:x} \\in ${2:S} : ${3:P(x)}$0",
+    "description": "∀：集合中的所有元素满足谓词"
+  },
+  "Existential quantifier": {
+    "prefix": "exists",
+    "body": "\\E ${1:x} \\in ${2:S} : ${3:P(x)}$0",
+    "description": "∃：集合中存在满足谓词的元素"
+  },
+  "Choose expression": {
+    "prefix": "CHOOSE",
+    "body": "CHOOSE ${1:x} \\in ${2:S} : ${3:P(x)}$0",
+    "description": "选取满足谓词的元素"
+  },
+  "Set filter": {
+    "prefix": "setfilter",
+    "body": "{${1:x} \\in ${2:S} : ${3:P(x)}}$0",
+    "description": "筛选集合 {x ∈ S : P(x)}"
+  },
+  "Set mapping": {
+    "prefix": "setmap",
+    "body": "{${1:f(x)} : ${2:x} \\in ${3:S}}$0",
+    "description": "映射集合 {f(x) : x ∈ S}"
+  },
+  "Function literal": {
+    "prefix": "fn",
+    "body": "[${1:x} \\in ${2:S} |-> ${3:x}]$0",
+    "description": "函数构造 [x ∈ S ↦ expression]"
+  },
+  "Function set": {
+    "prefix": "functionset",
+    "body": "[${1:S} -> ${2:T}]$0",
+    "description": "从 S 到 T 的所有函数组成的集合"
+  },
+  "Record literal": {
+    "prefix": "record",
+    "body": "[${1:field} |-> ${2:value}]$0",
+    "description": "记录值"
+  },
+  "Record set": {
+    "prefix": "recordset",
+    "body": "[${1:field} : ${2:Nat}]$0",
+    "description": "满足各字段取值范围的记录集合"
+  },
+  "Function update": {
+    "prefix": "EXCEPT",
+    "body": "[${1:f} EXCEPT ![${2:key}] = ${3:@ + 1}]$0",
+    "description": "函数更新；@ 表示原位置的值"
+  },
+  "Tuple": {
+    "prefix": "tuple",
+    "body": "<<${1:x}, ${2:y}>>$0",
+    "description": "元组或有限序列"
+  },
+  "Unchanged variables": {
+    "prefix": "UNCHANGED",
+    "body": "UNCHANGED <<${1:x, y}>>$0",
+    "description": "这些变量在当前动作中保持不变"
+  },
+  "Enabled action": {
+    "prefix": "ENABLED",
+    "body": "ENABLED ${1:Action}$0",
+    "description": "存在使动作成立的后继状态"
+  },
+  "Always": {
+    "prefix": "always",
+    "body": "[](${1:P})$0",
+    "description": "□：始终满足 P"
+  },
+  "Eventually": {
+    "prefix": "eventually",
+    "body": "<>(${1:P})$0",
+    "description": "◇：最终满足 P"
+  },
+  "Leads to": {
+    "prefix": "leadsto",
+    "body": "${1:P} ~> ${2:Q}$0",
+    "description": "P 成立后最终会有 Q 成立"
+  },
+  "Weak fairness": {
+    "prefix": "WF",
+    "body": "WF_${1:vars}(${2:Action})$0",
+    "description": "弱公平性：持续使能的动作最终执行"
+  },
+  "Strong fairness": {
+    "prefix": "SF",
+    "body": "SF_${1:vars}(${2:Action})$0",
+    "description": "强公平性：反复使能的动作反复执行"
+  },
+  "Set membership": {
+    "prefix": "in",
+    "body": "${1:x} \\in ${2:S}$0",
+    "description": "集合成员关系 ∈"
+  },
+  "Not in set": {
+    "prefix": "notin",
+    "body": "${1:x} \\notin ${2:S}$0",
+    "description": "非集合成员 ∉"
+  },
+  "Subset relation": {
+    "prefix": "subseteq",
+    "body": "${1:S} \\subseteq ${2:T}$0",
+    "description": "子集关系 ⊆"
+  },
+  "Set union": {
+    "prefix": "cup",
+    "body": "${1:S} \\cup ${2:T}$0",
+    "description": "两个集合的并集 ∪"
+  },
+  "Set intersection": {
+    "prefix": "cap",
+    "body": "${1:S} \\cap ${2:T}$0",
+    "description": "两个集合的交集 ∩"
+  },
+  "Set difference": {
+    "prefix": "difference",
+    "body": "${1:S} \\\\ ${2:T}$0",
+    "description": "集合差 S \\ T"
+  },
+  "Cartesian product": {
+    "prefix": "times",
+    "body": "${1:S} \\X ${2:T}$0",
+    "description": "笛卡尔积 ×"
+  },
+  "Power set": {
+    "prefix": "SUBSET",
+    "body": "SUBSET ${1:S}$0",
+    "description": "S 的所有子集组成的集合"
+  },
+  "Union of sets": {
+    "prefix": "UNION",
+    "body": "UNION ${1:Sets}$0",
+    "description": "将集合族中的所有集合求并集"
+  },
+  "Function domain": {
+    "prefix": "DOMAIN",
+    "body": "DOMAIN ${1:f}$0",
+    "description": "函数或记录的定义域"
+  },
+  "Conjunction": {
+    "prefix": "and",
+    "body": "${1:P} /\\ ${2:Q}$0",
+    "description": "逻辑与 ∧"
+  },
+  "Disjunction": {
+    "prefix": "or",
+    "body": "${1:P} \\/ ${2:Q}$0",
+    "description": "逻辑或 ∨"
+  },
+  "Implication": {
+    "prefix": "implies",
+    "body": "${1:P} => ${2:Q}$0",
+    "description": "逻辑蕴含 ⇒"
+  },
+  "Equivalence": {
+    "prefix": "equiv",
+    "body": "${1:P} <=> ${2:Q}$0",
+    "description": "逻辑等价 ⇔"
+  },
+  "Sequences of a set": {
+    "prefix": "Seq",
+    "body": "Seq(${1:S})$0",
+    "description": "元素来自 S 的所有有限序列；需 EXTENDS Sequences"
+  },
+  "Sequence length": {
+    "prefix": "Len",
+    "body": "Len(${1:seq})$0",
+    "description": "序列长度；需 EXTENDS Sequences"
+  },
+  "Append to sequence": {
+    "prefix": "Append",
+    "body": "Append(${1:seq}, ${2:value})$0",
+    "description": "向序列末尾追加元素；需 EXTENDS Sequences"
+  },
+  "Sequence head": {
+    "prefix": "Head",
+    "body": "Head(${1:seq})$0",
+    "description": "非空序列的首元素；需 EXTENDS Sequences"
+  },
+  "Sequence tail": {
+    "prefix": "Tail",
+    "body": "Tail(${1:seq})$0",
+    "description": "去掉非空序列的首元素；需 EXTENDS Sequences"
+  },
+  "Subsequence": {
+    "prefix": "SubSeq",
+    "body": "SubSeq(${1:seq}, ${2:first}, ${3:last})$0",
+    "description": "闭区间子序列，下标从 1 开始；需 EXTENDS Sequences"
+  },
+  "Concatenate sequences": {
+    "prefix": "concat",
+    "body": "${1:left} \\o ${2:right}$0",
+    "description": "序列拼接；需 EXTENDS Sequences"
+  },
+  "Set cardinality": {
+    "prefix": "Cardinality",
+    "body": "Cardinality(${1:S})$0",
+    "description": "有限集合的元素数量；需 EXTENDS FiniteSets"
+  },
+  "Finite set predicate": {
+    "prefix": "IsFiniteSet",
+    "body": "IsFiniteSet(${1:S})$0",
+    "description": "判断集合是否有限；需 EXTENDS FiniteSets"
+  },
+  "PlusCal algorithm": {
+    "prefix": "algorithm",
+    "body": ["(* --algorithm ${1:AlgorithmName}", "variables ${2:x} = ${3:0};", "begin", "    ${4:Start}:", "        ${5:skip;}", "end algorithm; *)", "$0"],
+    "description": "PlusCal p-syntax 算法，放在 TLA+ 模块内"
+  },
+  "PlusCal concurrent algorithm": {
+    "prefix": "pcalprocess",
+    "body": ["(* --algorithm ${1:Workers}", "variables ${2:x} = ${3:0};", "process ${4:Worker} \\in ${5:1..2}", "begin", "    ${6:Start}:", "        ${7:skip;}", "end process;", "end algorithm; *)", "$0"],
+    "description": "PlusCal p-syntax 并发进程模板"
+  },
+  "PlusCal while loop": {
+    "prefix": "pcalwhile",
+    "body": ["while ${1:condition} do", "    ${2:skip;}", "end while;$0"],
+    "description": "PlusCal p-syntax 循环（在算法体内使用）"
+  },
+  "PlusCal if statement": {
+    "prefix": "pcalif",
+    "body": ["if ${1:condition} then", "    ${2:skip;}", "else", "    ${3:skip;}", "end if;$0"],
+    "description": "PlusCal p-syntax 条件语句（在算法体内使用）"
+  },
+  "PlusCal await": {
+    "prefix": "await",
+    "body": "await ${1:condition};$0",
+    "description": "PlusCal：等待条件成立"
+  },
+  "PlusCal assertion": {
+    "prefix": "assert",
+    "body": "assert ${1:condition};$0",
+    "description": "PlusCal：运行时断言"
+  },
+  "PlusCal assignment": {
+    "prefix": "assign",
+    "body": "${1:x} := ${2:value};$0",
+    "description": "PlusCal：变量赋值"
+  }
+}

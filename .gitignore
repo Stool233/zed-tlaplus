@@ -1,0 +1,9 @@
+.DS_Store
+.cache/
+.venv/
+__pycache__/
+*.pyc
+grammars/
+extension.wasm
+target/
+node_modules/

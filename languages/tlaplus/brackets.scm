@@ -1,0 +1,8 @@
+("(" @open ")" @close)
+("[" @open "]" @close)
+("[" @open "]_" @close)
+("{" @open "}" @close)
+((langle_bracket) @open (rangle_bracket) @close)
+((langle_bracket) @open (rangle_bracket_sub) @close)
+(block_comment "(*" @open "*)" @close)
+((string "\"" @open "\"" @close) (#set! rainbow.exclude))

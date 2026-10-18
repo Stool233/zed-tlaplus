@@ -1,0 +1,16 @@
+id = "tlaplus"
+name = "TLA+"
+version = "0.2.0"
+schema_version = 1
+authors = ["TLA+ Zed contributors"]
+description = "TLA+ and PlusCal syntax highlighting, snippets, and TLA+ Go to Definition."
+languages = ["languages/tlaplus"]
+snippets = ["snippets/tla+.json"]
+
+[language_servers.tlaplus]
+name = "TLA+ Navigation"
+languages = ["TLA+"]
+
+[grammars.tlaplus]
+repository = "https://github.com/tlaplus-community/tree-sitter-tlaplus"
+rev = "add40814fda369f6efd989977b2c498aaddde984"
